@@ -1,9 +1,9 @@
 {
     "id": "EAD27298",
-    "path": null,
-    "project_path": null,
+    "path": "~/APL21-22DataTeam/Washington/Washington_Analysis.Rmd",
+    "project_path": "Washington/Washington_Analysis.Rmd",
     "type": "r_markdown",
-    "hash": "0",
+    "hash": "2418932943",
     "contents": "",
     "dirty": false,
     "created": 1636322652129.0,
@@ -13,15 +13,16 @@
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "11,13",
-        "scrollLine": "6"
+        "cursorPosition": "31,0",
+        "scrollLine": "32",
+        "last_setup_crc32": "548a9e08bb338d19"
     },
     "folds": "",
-    "lastKnownWriteTime": 502511173743,
-    "encoding": "",
+    "lastKnownWriteTime": 1636324365,
+    "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1636322652129,
+    "last_content_update": 1636324365531,
     "read_only": false,
     "read_only_alternatives": []
 }
