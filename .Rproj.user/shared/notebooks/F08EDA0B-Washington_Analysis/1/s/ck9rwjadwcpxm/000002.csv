@@ -1,0 +1,2 @@
+"0","alaska <- alaska %>%"
+"0","  rename(Order_Type = `Order type`)"

@@ -1,5 +1,5 @@
 ---
-title: "WA_Analysis"
+title: "Washington Analysis"
 author: "Ridge Ren"
 date: "11/7/2021"
 output: pdf_document
@@ -8,6 +8,30 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+```{r}
+library(tidyverse)
+library(knitr)
+```
+
+```{r}
+alaska <- read_csv("~/APL21-22DataTeam/Alaska/alaska_completed.csv")
+```
+```{r}
+glimpse(alaska)
+```
+
+```{r}
+alaska <- alaska %>%
+  rename(Order_Type = `Order type`)
+```
+
+```{r}
+ggplot(data = alaska, aes(y = Order_Type)) +
+  geom_bar(stat = 'count')
+```
+
+
 
 ## R Markdown
 
