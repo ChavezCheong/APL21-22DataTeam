@@ -76,6 +76,10 @@ p2 + scale_x_date(date_breaks = "1 year", date_labels = "%y")+ expand_limits(y =
 washington$text = tolower(washington$text)
 washington
 ```
+```{r}
+washington %>%
+  filter(str_detect(text, "jail"))
+```
 
 
 ```{r}
@@ -612,30 +616,22 @@ $
 98504-1200
 rcw
 902-8703
+director
+deborah
+wa
+po
 "
 stop_word <- strsplit(string1, "\n")[[1]]
-```
-
-
-
-```{r}
 corp_wa <- corp_wa %>% tokens %>% 
   tokens_remove(pattern = phrase(stop_word), valuetype = 'fixed')
-```
-
-```{r}
 dfmat_wa <- tokens(corp_wa, remove_punct = TRUE, remove_numbers = TRUE) %>%
     tokens_remove(stopwords("en")) %>%
     dfm()
-dfmat_wa
-```
-
-
-```{r}
 library("quanteda.textplots")
 textplot_wordcloud(dfmat_wa, min_count = 6, random_order = FALSE, rotation = 0.25,
     color = RColorBrewer::brewer.pal(8, "Dark2"))
 ```
+
 
 
 
