@@ -1,0 +1,701 @@
+---
+title: "Arizona"
+author: "Eli Levine"
+date: "12/3/2021"
+output: pdf_document
+---
+
+## Libraries
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(magrittr)
+library(lubridate)
+library(quanteda)
+library(stringr) 
+library(tm) 
+library(SnowballC) 
+library(rvest)
+library(tidytext)
+library(seededlda)
+```
+
+## Load Data
+```{r}
+arizona <-  read_csv("~/Downloads/arizona_completed.csv")
+head(arizona)
+```
+
+
+## EDA
+
+```{r}
+names(arizona)[names(arizona) == 'IN THE MATTER OF'] <- "in_the_matter_of"
+names(arizona)[names(arizona) == 'LICENSE TYPE'] <- "license_type"
+names(arizona)[names(arizona) == 'ENFORCEMENT TYPE'] <- "enforcement_type"
+names(arizona)[names(arizona) == 'FILED DATE'] <- "filed_date"
+```
+
+```{r}
+p <- ggplot(data = arizona, aes(x=license_type)) +
+  geom_bar(stat="count", fill="sienna4") +  coord_flip()
+p
+```
+```{r}
+p1 <- ggplot(data = arizona, aes(x=enforcement_type)) +
+  geom_bar(stat="count", fill="royalblue2") +  coord_flip()
+p1
+```
+```{r}
+arizona <- arizona %>%
+  mutate(filed_date = lubridate::mdy(filed_date))
+```
+
+```{r}
+head(arizona)
+```
+
+```{r}
+p2 <- ggplot(arizona, aes(x=filed_date)) +
+  geom_line(stat="count") + 
+  xlab("") 
+p2 + scale_x_date(date_breaks = "1 year", date_labels = "%y")+ expand_limits(y = 0)
+```
+## NLP
+
+```{r}
+arizona$Text = tolower(arizona$Text)
+arizona
+```
+
+
+```{r}
+corp_az <- corpus(arizona, text_field = "Text")  # build a new corpus from the texts
+summary(corp_az)
+```
+
+```{r}
+string1 <- "should
+own
+or
+address
+across
+as
+someone
+him
+dollar
+allege
+two
+transcript
+here
+least
+ten
+such
+whereupon
+originator
+both
+every
+somewhere
+them
+one
+next
+through
+damel
+law
+applicant
+denial
+b
+keep
+itself
+november
+than
+twelve
+please
+unless
+always
+us
+used
+whereas
+exhibit
+rule
+march
+anyhow
+licensee
+p
+conclusion
+my
+wherein
+february
+within
+doing
+notify
+has
+return
+yours
+against
+revise
+thereupon
+forty
+consistent
+four
+nothing
+june
+’m
+until
+right
+must
+following
+anything
+these
+everyone
+whose
+since
+constitute
+eleven
+manager
+an
+n't
+consider
+then
+'d
+october
+before
+administrative
+be
+its
+thus
+evidence
+however
+even
+rc
+along
+agreement
+about
+there
+defendant
+days
+below
+made
+'s
+serve
+amongst
+paragraph
+five
+several
+apply
+using
+latter
+\t
+respondent
+few
+say
+n‘t
+mailing
+therefore
+this
+himself
+third
+else
+‘m
+stipulation
+latterly
+wherefore
+duly
+appropriate
+appellate
+still
+order
+serious
+hundred
+fifty
+herself
+july
+not
+dfi
+besides
+terminate
+case
+detailed
+nor
+over
+adjudicatory
+sometime
+officer
+most
+off
+quite
+attest
+side
+thereafter
+already
+‘ve
+some
+superintendent
+commerce
+been
+attorney
+less
+moreover
+without
+put
+mail
+basis
+no
+taft
+intent
+afterwards
+take
+while
+registration
+realize
+come
+procedure
+appoint
+of
+everywhere
+operation
+formal
+all
+whom
+very
+section
+ourselves
+sometimes
+in
+for
+previously
+amount
+’d
+certificate
+enforce
+cannot
+except
+his
+alone
+agree
+any
+ca
+sections
+mine
+though
+above
+part
+our
+registrant
+became
+seeming
+find
+report
+result
+with
+matter
+adopt
+whenever
+seem
+january
+municipal
+almost
+me
+opportunity
+provision
+much
+on
+whatever
+when
+thereof
+never
+31st
+become
+hereinafter
+anyone
+now
+otherwise
+notice
+consideration
+just
+record
+does
+somehow
+m
+amend
+have
+do
+i
+amendment
+will
+to
+among
+august
+three
+codify
+only
+rather
+provide
+how
+mostly
+toward
+specifically
+proceeding
+ever
+might
+chapters
+code
+seemed
+bottom
+show
+hers
+the
+neither
+first
+are
+settlement
+you
+more
+once
+throughout
+their
+practice
+where
+lieu
+motion
+hereupon
+and
+may
+either
+also
+hereby
+many
+e
+a
+were
+herein
+whether
+elsewhere
+reserve
+so
+into
+jurisdiction
+often
+n’t
+around
+becomes
+due
+six
+empower
+onto
+allegation
+robert
+various
+indeed
+beyond
+hearing
+what
+department
+make
+hearma
+bill
+those
+why
+necessary
+april
+responsibility
+well
+via
+’re
+did
+something
+‘ll
+arizona
+understand
+fact
+although
+former
+empty
+upon
+‘re
+follow
+seems
+too
+can
+meanwhile
+becoming
+together
+yet
+it
+act
+institution
+recommendation
+broxterman
+at
+after
+findings
+because
+division
+condition
+which
+would
+mortgage
+accordance
+whereafter
+everything
+another
+business
+nowhere
+whereby
+investigation
+enough
+'m
+grieser
+nine
+nevertheless
+ace
+admission
+per
+hence
+noone
+request
+again
+same
+originate
+full
+see
+‘s
+had
+page
+out
+'ll
+go
+beforehand
+anywhere
+jennifer
+between
+who
+consist
+thereby
+proscribe
+last
+call
+revised
+bob
+was
+state
+none
+her
+get
+myself
+but
+thru
+’ll
+purpose
+codified
+namely
+if
+wherever
+indicate
+anyway
+is
+ohio
+yourselves
+expressly
+twenty
+heshe
+really
+ce
+behind
+time
+that
+by
+ours
+up
+he
+administer
+others
+fifteen
+your
+eight
+sixty
+done
+themselves
+understanding
+being
+top
+loan
+’s
+regarding
+’ve
+could
+whither
+whole
+perhaps
+'ve
+give
+andor
+continue
+under
+name
+file
+‘d
+therein
+adjucative
+applicable
+background
+chapter
+december
+thence
+occur
+institute
+'re
+each
+towards
+transfer
+whoever
+oh
+down
+during
+yourself
+broker
+she
+whence
+institutions
+authorize
+back
+beside
+tr
+formerly
+hereafter
+re
+they
+charge
+front
+other
+september
+protect
+application
+nobody
+financial
+move
+pursuant
+we
+am
+date
+further
+finding
+from
+barnaby
+wolfe
+joseph
+noland
+texas
+enters
+titles
+specificity
+inc
+c
+mehkri
+maxwell
+fletcher
+mrs
+martensen"
+stop_word <- strsplit(string1, "\n")[[1]]
+```
+
+
+
+```{r}
+corp_az <- corp_az %>% tokens %>% 
+  tokens_remove(pattern = phrase(stop_word), valuetype = 'fixed')
+```
+
+```{r}
+dfmat_az <- tokens(corp_az, remove_punct = TRUE, remove_numbers = TRUE) %>%
+    tokens_remove(stopwords("en")) %>%
+    dfm()
+dfmat_az
+```
+
+
+```{r}
+library("quanteda.textplots")
+textplot_wordcloud(dfmat_az, min_count = 6, random_order = FALSE, rotation = 0.25,
+    color = RColorBrewer::brewer.pal(8, "Dark2"))
+```
+
+
+
+```{r}
+quant_dfm <- tokens(corp_az, remove_punct = TRUE, remove_numbers = TRUE) %>%
+    tokens_remove(stopwords("en")) %>%
+    dfm()
+quant_dfm <- dfm_trim(quant_dfm, min_termfreq = 4, max_docfreq = 10)
+quant_dfm
+```
+```{r}
+library(stm)
+library(furrr)
+plan(multiprocess)
+
+many_models <- data_frame(K = c(5,10,15,20)) %>%
+  mutate(topic_model = future_map(K, ~stm(quant_dfm, K = .,
+                                          verbose = FALSE)))
+heldout <- make.heldout(quant_dfm)
+
+k_result <- many_models %>%
+  mutate(exclusivity = map(topic_model, exclusivity),
+         semantic_coherence = map(topic_model, semanticCoherence, quant_dfm),
+         eval_heldout = map(topic_model, eval.heldout, heldout$missing),
+         residual = map(topic_model, checkResiduals, quant_dfm),
+         bound =  map_dbl(topic_model, function(x) max(x$convergence$bound)),
+         lfact = map_dbl(topic_model, function(x) lfactorial(x$settings$dim$K)),
+         lbound = bound + lfact,
+         iterations = map_dbl(topic_model, function(x) length(x$convergence$bound)))
+
+
+k_result %>%
+  transmute(K,
+            `Lower bound` = lbound,
+            Residuals = map_dbl(residual, "dispersion"),
+            `Semantic coherence` = map_dbl(semantic_coherence, mean),
+            `Held-out likelihood` = map_dbl(eval_heldout, "expected.heldout")) %>%
+  gather(Metric, Value, -K) %>%
+  ggplot(aes(K, Value, color = Metric)) +
+  geom_line(size = 1.5, alpha = 0.7, show.legend = FALSE) +
+  facet_wrap(~Metric, scales = "free_y") +
+  labs(x = "K (number of topics)",
+       y = NULL,
+       title = "Model diagnostics by number of topics",
+       subtitle = "These diagnostics indicate that a good number of topics would be around 10")
+```
+
+```{r}
+set.seed(100)
+if (require("stm")) {
+    my_lda_fit <- stm(quant_dfm, K = 10, verbose = FALSE)
+    plot(my_lda_fit)
+}
+```
+
+```{r}
+arizona$Text
+findThoughts(my_lda_fit, texts = arizona$Text, topics = 1, n = 3)
+```
+
+
+```{r}
+#dict <- dictionary(list(terrorism = c("terrorism", "terrorists", "threat"), economy = c("jobs","business", "grow", "work")))
+```
+
+```{r}
+#dfmat_az_dict <- tokens(corp_az) %>%
+    #tokens_lookup(dictionary = dict) %>%
+    #dfm()
+#view(dfmat_az_dict)
+```
+
+
+
+
+
+
+
+
+
